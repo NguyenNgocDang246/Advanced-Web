@@ -7,7 +7,7 @@ export default function Loader() {
       className="flex items-center gap-2 bg-gray-200 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
     >
       <svg
-        className="animate-spin h-5 w-5 text-gray-600"
+        className="animate-spin h-5 w-5 text-gray-500"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
