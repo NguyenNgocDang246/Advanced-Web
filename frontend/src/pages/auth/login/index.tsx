@@ -2,8 +2,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { loginUser } from "../../../api/user";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [message, setMessage] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -100,6 +102,21 @@ export default function Login() {
           {mutation.isPending ? "Logging in..." : "Log In"}
         </button>
       </form>
+
+      <p className="text-center text-sm text-gray-600 mt-4">
+        Don't have an account?{" "}
+        <Link to="/signup" className="text-blue-600 hover:underline font-medium">
+          Register here
+        </Link>
+      </p>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => navigate("/")}
+          className="text-sm text-gray-600 hover:text-blue-600 underline"
+        >
+          ← Back to Home
+        </button>
+      </div>
 
       {message && (
         <p
