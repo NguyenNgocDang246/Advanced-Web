@@ -1,3 +1,4 @@
+import API, { setAccessToken } from "./baseAPI"; // Axios instance đã gắn interceptor tự động
 import axios from "axios";
 
 export interface RegisterData {
@@ -7,7 +8,7 @@ export interface RegisterData {
 
 export const registerUser = async (data: RegisterData) => {
   try {
-    const res = await axios.post("http://localhost:3000/user/register", data);
+    const res = await API.post("/user/register", data);
     return res.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -24,7 +25,14 @@ export interface LoginData {
 
 export const loginUser = async (data: LoginData) => {
   try {
-    const res = await axios.post("http://localhost:3000/user/login", data);
+    const res = await API.post("/user/login", data);
+
+    // Lưu access token vào memory trong baseAPI
+    setAccessToken(res.data.accessToken);
+
+    // Lưu refresh token vào localStorage
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+
     return res.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -34,10 +42,20 @@ export const loginUser = async (data: LoginData) => {
   }
 };
 
-export const getUserInfo = async (accessToken: string) => {
-  const res = await axios.get("http://localhost:3000/user/info", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  console.log(res.data.data);
-  return res.data.data;
+export interface UserInfo {
+  _id: string;
+  email: string;
+}
+
+export const getUserInfo = async (): Promise<UserInfo> => {
+  try {
+    const res = await API.get("/user/info");
+    console.log(res.data.data);
+    return res.data.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Request error");
+    }
+    throw new Error("Unexpected error");
+  }
 };

@@ -1,14 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { LogIn, UserPlus, Home as HomeIcon, LogOut } from "lucide-react";
-import { useContext } from "react";
-import { AuthContext } from "../../contexts/AuthContext";
+import { setAccessToken, accessTokenMemory as accessToken } from "../../api/baseAPI";
 
 export default function Home() {
-  const { accessToken, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout(); // xóa access token và refresh token
+    setAccessToken(null);
+    localStorage.removeItem("refreshToken");
     navigate("/"); // quay về home
   };
 

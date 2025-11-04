@@ -1,9 +1,9 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { loginUser } from "../../../api/user";
-import { AuthContext } from "../../../contexts/AuthContext"; // context để lưu access token
+import { setAccessToken } from "../../../api/baseAPI";
 
 interface LoginFormValues {
   email: string;
@@ -12,7 +12,6 @@ interface LoginFormValues {
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setAccessToken } = useContext(AuthContext); // lưu access token vào memory
   const [message, setMessage] = useState<string | null>(null);
 
   const mutation = useMutation({

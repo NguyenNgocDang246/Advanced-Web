@@ -1,11 +1,9 @@
-import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../../../contexts/AuthContext";
+import { accessTokenMemory as accessToken } from "../../../api/baseAPI";
 import { getUserInfo } from "../../../api/user";
 import { useNavigate } from "react-router-dom";
 
 export default function UserInfo() {
-  const { accessToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   if (!accessToken) {
@@ -15,7 +13,7 @@ export default function UserInfo() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["userInfo"], // đây là bắt buộc
-    queryFn: () => getUserInfo(accessToken!),
+    queryFn: () => getUserInfo(),
     enabled: !!accessToken, // chỉ gọi khi accessToken tồn tại
   });
 
@@ -26,10 +24,10 @@ export default function UserInfo() {
     <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-2xl shadow-lg text-center">
       <h2 className="text-3xl font-bold mb-6 text-blue-700">User Info</h2>
       <p>
-        <strong>ID:</strong> {data._id}
+        <strong>ID:</strong> {data?._id}
       </p>
       <p>
-        <strong>Email:</strong> {data.email}
+        <strong>Email:</strong> {data?.email}
       </p>
       <button
         onClick={() => navigate("/")}
