@@ -1,8 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
-import { useForm } from "@tanstack/react-form";
-import { registerUser } from "../../../api/user";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { registerUser } from "../../../api/user";
+
+interface RegisterFormValues {
+  email: string;
+  password: string;
+}
 
 export default function Register() {
   const navigate = useNavigate();
@@ -10,88 +15,72 @@ export default function Register() {
 
   const mutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: (data) => setMessage(`Registered successfully, ${data.data.email}!`),
-    onError: (error) => setMessage(`${error}`),
+    onSuccess: (data) => {
+      setMessage(`Registered successfully, ${data.data.email}!`);
+      // Điều hướng sang trang login
+      navigate("/login");
+    },
+    onError: (error: any) => {
+      setMessage(`Error: ${error.message || "Registration failed"}`);
+    },
   });
 
-  const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    onSubmit: async ({ value }) => {
-      setMessage(null);
-      await mutation.mutateAsync(value);
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    defaultValues: { email: "", password: "" },
   });
+
+  const onSubmit = async (values: RegisterFormValues) => {
+    setMessage(null);
+    await mutation.mutateAsync(values);
+  };
 
   return (
-    <div>
+    <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-2xl shadow-lg">
       <h2 className="text-3xl mb-6 text-center font-bold text-blue-700">Sign Up</h2>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="space-y-5"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Email */}
-        <form.Field
-          name="email"
-          validators={{
-            onChange: ({ value }) =>
-              !value
-                ? "Email is required"
-                : !/\S+@\S+\.\S+/.test(value)
-                ? "Invalid email address"
-                : undefined,
-          }}
-        >
-          {(field) => (
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="you@example.com"
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-sm mt-1">{field.state.meta.errors[0]}</p>
-              )}
-            </div>
-          )}
-        </form.Field>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
+          <input
+            type="email"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "Invalid email address",
+              },
+            })}
+            className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
+            placeholder="you@example.com"
+          />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+        </div>
 
         {/* Password */}
-        <form.Field
-          name="password"
-          validators={{
-            onChange: ({ value }) => (value.length < 6 ? "At least 6 characters" : undefined),
-          }}
-        >
-          {(field) => (
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="••••••••"
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-sm mt-1">{field.state.meta.errors[0]}</p>
-              )}
-            </div>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
+          <input
+            type="password"
+            {...register("password", {
+              required: "Password is required",
+              minLength: { value: 6, message: "At least 6 characters" },
+            })}
+            className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
+            placeholder="••••••••"
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
           )}
-        </form.Field>
+        </div>
 
         <button
           type="submit"
-          disabled={mutation.isPending}
+          disabled={isSubmitting || mutation.isPending}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg transition disabled:opacity-70"
         >
           {mutation.isPending ? "Registering..." : "Register"}
@@ -104,6 +93,7 @@ export default function Register() {
           Log in here
         </Link>
       </p>
+
       <div className="flex justify-center mt-4">
         <button
           onClick={() => navigate("/")}

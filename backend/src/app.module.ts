@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
 import { AppService } from './app.service';
 import { UsersModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
+import { TokenModule } from './token/token.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from './user/user.module';
     }),
     MongooseModule.forRoot(process.env.MONGO_URI || ''),
     UsersModule,
+    TokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

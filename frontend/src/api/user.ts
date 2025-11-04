@@ -33,3 +33,11 @@ export const loginUser = async (data: LoginData) => {
     throw new Error("Unexpected error");
   }
 };
+
+export const getUserInfo = async (accessToken: string) => {
+  const res = await axios.get("http://localhost:3000/user/info", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  console.log(res.data.data);
+  return res.data.data;
+};
